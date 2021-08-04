@@ -1,0 +1,122 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <style>
+            .sky{
+                height: 100vh;
+                width: 500%;
+                background-color: rgb(243, 241, 240);
+                background-repeat: repeat-x;
+                position: absolute;
+            }
+            .car{
+                height: 100px;
+                width: 800px;
+                background-size: cover;
+                background-repeat: repeat-x;
+                position: absolute;
+                left: 800px;
+                bottom:55vh;
+                animation: shake linear .8s infinite;
+            }
+            .road{
+                height:500vh;
+                width:100vw;
+                position:absolute;
+                top:60vh;
+                background-repeat: repeat-y;
+                animation: carMove linear 2s infinite;
+            }
+            .wheel1 img{
+                width: 210px;
+                position: relative;
+                top:-300px;
+                left:42px;
+                animation: wheelRotation linear .99s infinite;
+            }
+            .wheel2 img{
+                width: 225px;
+                position: relative;
+                top: -523px;
+                left: 255px;
+                animation: wheelRotation linear .99s infinite;
+            }
+            @keyframes carMove
+            {
+                100%{
+                    transform: translateX(-100vw);
+                }
+            }
+            @keyframes wheelRotation
+            {
+                100%{
+                    transform: rotate(360deg);
+                }
+            }
+            
+            @keyframes shake
+            {
+                0%{
+                    transform: translateY(-50px);
+                }
+                50%{
+                    transform: translateY(50px);
+                }
+                100%{
+                    transform: translateY(-50px);
+                }
+            }
+          
+        </style>
+    </head>
+    <body>
+        <div class="container">
+        <div class="sky">
+        <div class="track road"><img class="road-track" src="./img/track.png"></div>
+            <div class="vehicle car">
+                <img class="mining-truck" src="./img/miningtruck.png">
+                    <div class="wheel wheel1"><img class="left-wheel" src="./img/car_wheel_left.png" alt=""></div>
+                    <div class="wheel wheel2"><img class="right-wheel" src="./img/car_wheel_right.png" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="./data/accXaccZCOMBINEDMOTIONS.json"></script>
+    </body>
+    <script>
+        var data = JSON.parse(JSON.stringify(data));
+        console.log(data);
+        $(function(){
+            var pos = 200;
+            
+            //$('.road-track').stop().animate({'margin-left': '1000px'}, 1000);
+            //$('.road').css("transform", `translateX(-100vw)`);
+            //$('.road-track').css('-webkit-transform',  'translateX(' + pos+ 'px)');
+            //$(".road").css({
+            //    transform: "translateX(10%)",
+            //  });
+            $('.road-track').stop().animate({
+                'background-repeat': 'repeat-x'
+            });
+
+            $('.mining-truck').stop().animate({
+                'background-repeat': 'no-repeat'
+            }, 2500);
+
+            $('.right-wheel').stop().animate({
+
+            },2500);
+
+            $('.left-wheel').stop().animate({
+                
+            },2500);
+            
+            //$.keyframe.define([{
+            //    name: 'carMove',
+            //    '0%':   {top:"0px"},
+            //    '50%': {top:$("#track").innerHeight() + "px"},
+            //    '100%': {top:"0px"}
+            //}]);
+        });
+    </script>
+</html>

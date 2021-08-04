@@ -1,0 +1,207 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+  <meta charset="UTF-8">  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="./libs/jquery.keyframes.min.js"></script>
+
+  <script src="./data/accXaccZCOMBINEDMOTIONS.json"></script>  
+  <style>
+    *{
+        margin:  0;
+        padding: 0;
+    }
+    
+    .sky{
+        height:100vh;
+        width:800vw;
+        background-color: rgb(243, 241, 240);
+        background-repeat: repeat-x;
+        position: absolute;
+    }
+    
+    .track{
+        height:80vh;
+        width:800vw;
+        position:absolute;
+        top:70vh;
+        background-repeat: repeat-x;
+        background-image: url(./img/track.png);
+        /*animation: carMove linear 13s infinite;*/
+    }
+    .car{
+        height: 1px;
+        width: 800px;
+        background-image: url(./img/miningtruck.png);
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: absolute;
+        left: 600px;
+        bottom:55vh;
+        /*animation: shake linear .3s infinite;*/
+    }
+    .wheel1 img{
+        width: 210px;
+        position: relative;
+        top:-320px;
+        left:42px;
+        animation: wheelRotation linear .99s infinite;
+    }
+    .wheel2 img{
+        width: 225px;
+        position: relative;
+        top: -540px;
+        left: 255px;            
+        animation: wheelRotation linear .99s infinite;
+    }
+
+    @keyframes wheelRotation
+        {
+            100%{
+                transform: rotate(360deg);
+            }
+        }
+
+    @media only screen and (max-width: 768px) {
+        .car{
+            height: 50px;
+            width: 190px;
+            left: 180px;
+            position: absolute;
+        }
+        .wheel1 img{
+            width: 38.5px;
+            position: relative;
+            top:22px;
+            left:22px;
+        }.wheel2 img{
+            width: 39px;
+            position: relative;
+            top: -21px;
+            left: 115px;
+        }
+    }
+
+  </style>  
+  <script type='text/javascript'>
+    //var currentIndex = 0;
+    //var data = JSON.parse(JSON.stringify(data));
+    //console.log('data');
+    //function retrieveDisplacement(){
+    //    for (var i=0, l=data.length; i<l ; i++) {
+    //        console.log(data.elements[i].time)
+    //    }
+    //}
+
+    $(document).ready(function() {
+        //retrieveDisplacement()
+
+        // Adding all the animation sequences (keyframe)
+        $.keyframe.define([{
+            name: 'carMove',
+            '100%': {
+                'transform': 'translateX(-500vw)'
+            }
+          }, {
+            name: 'wheelRotation',
+            '100%': {
+                'transform': 'rotate(360deg)'
+            }
+            }, {
+              name: 'shake',
+              '0%': {
+                'transform': 'translateY(-5px)'
+              },
+              '50%': {
+                'transform': 'translateY(5px)'
+              },
+              '100%': {
+                'transform': 'translateY(-5px)'
+            }  
+        }]);
+    });
+
+    function play(animation) {
+        $('.track').resetKeyframe(function() {
+            switch (animation) {
+                case 'normal':
+                //$('.wheel1').playKeyframe({
+                //    name: 'wheelRotation',
+                //    duration: "5000ms",
+                //    timingFunction: 'linear',
+                //    iterationCount: 'infinite'
+                //  });
+//
+                //$('.wheel2').playKeyframe({
+                //  name: 'wheelRotation',
+                //  duration: "5000ms",
+                //  iterationCount: 'infinite',
+                //  timingFunction: 'linear'
+                //});
+
+                $('.track').playKeyframe({
+                    name: 'carMove',
+                    duration: "13s",
+                    timingFunction: 'linear',
+                    iterationCount: 'infinite',
+                    direction: 'normal',
+                    fillMode: 'forwards'
+                  });
+
+                  $('.car').playKeyframe({
+                    name: 'shake',
+                    duration: "3s",
+                    timingFunction: 'linear',
+                    iterationCount: 'infinite',
+                    direction: 'normal',
+                    fillMode: 'forwards'
+                  });
+                break;
+            }
+            
+        })
+    }
+
+    function pause() {
+        // freeze keyframe animation and kill callback
+        $('.track').pauseKeyframe();
+        $('.car').pauseKeyframe();
+        $('.wheel1').pauseKeyframe();
+        $('.wheel2').pauseKeyframe();
+    }
+
+    function increment() {
+        $('#cb').html(parseInt($('#cb').html()) + 1);
+    }
+
+    function resume() {
+        // resume keyframe animation
+        $('.track').resumeKeyframe();
+        $('.car').resumeKeyframe();
+        $('.wheel1').resumeKeyframe();
+        $('.wheel2').resumeKeyframe();
+      }
+
+  </script>  
+</head>  
+<body>  
+  <div class="container"> 
+    <input type="button" onclick="play('normal')" value="Start Motion" />
+    <input type="button" onclick="pause()" value="Stop Motion" />
+    <!-- <input type="button" onclick="resume()" value="Stop Motion" /> -->
+    <div class="sky">  
+      <div class="track"></div>  
+      <div class="car"> 
+          <img class="mining-truck" src="./img/miningtruck.png"> 
+        <div class="wheel wheel1">  
+          <img src="./img/car_wheel_left.png" alt="">  
+        </div>  
+        <div class="wheel wheel2">  
+          <img src="./img/car_wheel_right.png" alt="">  
+        </div>  
+      </div>  
+    </div>  
+  </div>
+</body>  
+</html> 
