@@ -11,4 +11,8 @@ https://stackoverflow.com/questions/44635985/using-css3-transitions-and-keyframe
 https://api.jquery.com/animate/
 
 
+## TODO:
 
+1. Access json strings values from outside the loop()
+2. apply double integration and feed the value to jquery keyframes
+3. fix wheel rotation problem

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script type="text/javascript" src="./libs/jquery.keyframes.min.js"></script>
-
   <script src="./data/accXaccZCOMBINEDMOTIONS.json"></script>  
   <style>
     *{
@@ -85,18 +84,42 @@
 
   </style>  
   <script type='text/javascript'>
-    //var currentIndex = 0;
-    //var data = JSON.parse(JSON.stringify(data));
-    //console.log('data');
+    var data = JSON.parse(JSON.stringify(data));
+    
+    var i = 1;  
+    var getMessage;       
+    function myLoop() {         
+      setTimeout(function() {   
+        // code here
+        var jsonRead = data[i].accX        
+        
+        i++;                    
+        if (i < data.length) {          
+          myLoop();   
+        }      
+        console.log(jsonRead)                
+      }, 200)
+    }
+
+    ////console.log('data');
     //function retrieveDisplacement(){
-    //    for (var i=0, l=data.length; i<l ; i++) {
-    //        console.log(data.elements[i].time)
+    //  for (var i = 0; i < data.length; i++){
+    //    var obj = data[i];
+    //    for (var key in obj){
+    //      var value = obj[key];
+    //      console.log(value);
     //    }
+    //  }
+    //  
+    //  //currentIndex++;
+    //  ////console.log(currentIndex)
+    //  //data.forEach(function(obj){
+    //  //  console.log(obj.time);
+    //  //})
     //}
 
     $(document).ready(function() {
-        //retrieveDisplacement()
-
+      myLoop()
         // Adding all the animation sequences (keyframe)
         $.keyframe.define([{
             name: 'carMove',
@@ -123,6 +146,7 @@
     });
 
     function play(animation) {
+      
         $('.track').resetKeyframe(function() {
             switch (animation) {
                 case 'normal':
