@@ -8,7 +8,7 @@
   <script src="./data/accXaccZCOMBINEDMOTIONS.json"></script> 
 
   <script type='text/javascript'>
-    var i            = 0;
+    let i            = 0;
     let accX         = 0;
     let accZ         = 0;
     var valid        = 2;
@@ -20,52 +20,55 @@
     var data         = JSON.parse(JSON.stringify(data));
 
 
-    async function myLoop (data) {
-      function retrieveAcceleration (obj) {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => resolve({
-            acceleration_x: obj.accX,
-            acceleration_z: obj.accZ,
-            timestamp: obj.time
-          }), 500)
-        });
-      }
-
-      /* -------------------------------------
-         feed the data to the keyframe here
-         ------------------------------------- */
-      for (let ele of data) {
-        keyframe = await retrieveAcceleration(ele);
-
-        valid++;
-        accX = keyframe.acceleration_x;
-        accZ = keyframe.acceleration_z;
-        time = keyframe.timestamp;
-        accArrayX[0] = accX;
-        accArrayZ[0] = accZ;
-
-        // compute the displacement by double integrating the acceleration for accZ (e.i. Up and down movement)
-        const deltaTime = valid - 1; // convert time from second per day to second
-        const velocityInitialZ = ((accArrayX[0]) / 2) * deltaTime; // compute initialVelocity two step backward
-        const velocityCurrentZ = velocityInitialZ + ((accArrayX[0]) / 2) *deltaTime; // compute currentVelocity one step backward                
-        const previousDispZ = dispArrayZ[0] + (deltaTime * ((velocityCurrentZ + velocityInitialZ) / 2));
-        dispArrayZ[0] = previousDispZ;
-        const dispCurrentZ = previousDispZ + dispArrayZ[0];
-
-        // compute the displacement by double integrating the acceleration for accX (e.i. Right and left movement)
-        const velocityInitialX = ((accArrayZ[0]) / 2) * deltaTime; // compute initialVelocity two steps backward
-        const velocityCurrentX = velocityInitialX + ((accArrayZ[0]) / 2) *deltaTime; // compute currentVelocity one step backward                
-        const previousDispX = dispArrayX[0] + (deltaTime * ((velocityCurrentX + velocityInitialX) / 2));
-        dispArrayX[0] = previousDispX;
-        const dispCurrentX = previousDispX + dispArrayX[0];
-
-        const finaldispX =  (dispCurrentX / 5000) * (20 ** -2);
-        const finaldispZ = -(dispCurrentZ / 2000) * (20 ** -2);
-
-        console.log("dispX: ", finaldispX.toFixed(7)," dispZ: ", finaldispZ.toFixed(7));
-      };
-    }
+    //async function myLoop (data) {
+    //  function retrieveAcceleration (obj) {
+    //    return new Promise((resolve, reject) => {
+    //      setTimeout(() => resolve({
+    //        acceleration_x: obj.accX,
+    //        acceleration_z: obj.accZ,
+    //        timestamp: obj.time
+    //      }), 500)
+    //    });
+    //  }
+//
+    //  /* -------------------------------------
+    //     feed the data to the keyframe here
+    //     ------------------------------------- */
+    //  for (let ele of data) {
+    //    keyframe = await retrieveAcceleration(ele);
+//
+    //    valid++;
+    //    accX = keyframe.acceleration_x;
+    //    accZ = keyframe.acceleration_z;
+    //    time = keyframe.timestamp;
+    //    accArrayX[0] = accX;
+    //    accArrayZ[0] = accZ;
+//
+    //    // compute the displacement by double integrating the acceleration for accZ (e.i. Up and down movement)
+    //    const deltaTime = valid - 1; // convert time from second per day to second
+    //    const velocityInitialZ = ((accArrayX[0]) / 2) * deltaTime; // compute initialVelocity two step backward
+    //    const velocityCurrentZ = velocityInitialZ + ((accArrayX[0]) / 2) *deltaTime; // compute currentVelocity one step backward                
+    //    const previousDispZ = dispArrayZ[0] + (deltaTime * ((velocityCurrentZ + velocityInitialZ) / 2));
+    //    dispArrayZ[0] = previousDispZ;
+    //    const dispCurrentZ = previousDispZ + dispArrayZ[0];
+//
+    //    // compute the displacement by double integrating the acceleration for accX (e.i. Right and left movement)
+    //    const velocityInitialX = ((accArrayZ[0]) / 2) * deltaTime; // compute initialVelocity two steps backward
+    //    const velocityCurrentX = velocityInitialX + ((accArrayZ[0]) / 2) *deltaTime; // compute currentVelocity one step backward                
+    //    const previousDispX = dispArrayX[0] + (deltaTime * ((velocityCurrentX + velocityInitialX) / 2));
+    //    dispArrayX[0] = previousDispX;
+    //    const dispCurrentX = previousDispX + dispArrayX[0];
+//
+    //    const finaldispX =  (dispCurrentX / 5000) * (20 ** -2);
+    //    const finaldispZ = -(dispCurrentZ / 2000) * (20 ** -2);
+//
+    //    console.log("dispX: ", finaldispX.toFixed(7)," dispZ: ", finaldispZ.toFixed(7));
+    //  };
+    //}
     
+    
+    //console.log(getRectArea(3500));
+
     $(document).ready(function() {
       
       $('.wheel1').css({'width': '210px','top': '-303px','left': '420px','position': 'relative','transform-origin': 'center'});
@@ -84,23 +87,39 @@
             {
               name: 'shake',
               '0%': {
-                'transform': 'translateY(-5px)'
+                'transform': 'translateY(-50px)'
               },
               '50%': {
-                'transform': 'translateY(5px)'
+                'transform': 'translateY(1px)'
               },
               '100%': {
-                'transform': 'translateY(-5px)'
+                'transform': 'translateY(-50px)'
             }  
         }]);
     });
 
     function play(animation) {
-      myLoop (data)
-      $('.wheel1').css({'width': '210px','top': '220px','left': '420px','position': 'fixed','transform-origin': 'center'});
-      $('.wheel2').css({'width': '210px','top': '220px','left': '195px','position': 'fixed','transform-origin': 'center'});
+      
+      //$('.wheel1').css({'width': '210px','top': '220px','left': '420px','position': 'fixed','transform-origin': 'center'});
+      //$('.wheel2').css({'width': '210px','top': '220px','left': '195px','position': 'fixed','transform-origin': 'center'});
+
+      function myLoop() {         
+        setTimeout(function() {   
+          // code here
+          var jsonRead = data[i].accX        
+  
+          i++;                    
+          if (i < data.length) {          
+            myLoop();   
+          }      
+          console.log(jsonRead)                
+        }, 1000)
+      }
+      myLoop()
       
         $('.track').resetKeyframe(function() {
+       
+
             switch (animation) {
                 case 'normal':
                 $('.wheel').playKeyframe({
@@ -121,7 +140,7 @@
 
                   $('.car').playKeyframe({
                     name: 'shake',
-                    duration: "10s",
+                    duration: "1s",
                     timingFunction: 'linear',
                     iterationCount: 'infinite',
                     direction: 'normal',
@@ -129,7 +148,6 @@
                   });
                 break;
             }
-            
         })
     }
 
@@ -192,8 +210,8 @@
     <input type="button" onclick="play('normal')" value="Start Motion" />
     <input type="button" onclick="pause()" value="Stop Motion" />
     <input type="button" onclick="resume()" value="Resume Motion" />
-    <div class="sky">  
-      <div class="track"></div>  
+    <div class="sky">
+      <div class="track"></div>
       <div class="car"> 
           <img class="mining-truck" src="./img/miningtruck.png"> 
         <div class="wheel wheel1">  
