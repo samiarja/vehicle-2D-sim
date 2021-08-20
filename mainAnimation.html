@@ -7,191 +7,243 @@
   <script type="text/javascript" src="./libs/jquery.keyframes.min.js"></script>
   <script src="./data/accXaccZCOMBINEDMOTIONS.json"></script> 
 
+  <!-- Javascript -->
   <script type='text/javascript'>
-    let i            = 0;
-    let accX         = 0;
-    let accZ         = 0;
-    var valid        = 2;
-    var randomVal    = 0;
-    const accArrayX  = Array.from({length: 1}).fill(0);
-    const accArrayZ  = Array.from({length: 1}).fill(0);
-    const dispArrayX = Array.from({length: 1}).fill(0);
-    const dispArrayZ = Array.from({length: 1}).fill(0);
-    var data         = JSON.parse(JSON.stringify(data));
+    //$('.wheel1').css({'width': '110px','top': '303px','left': '420px','position': 'relative','transform-origin': 'center'});
+    //$('.wheel2').css({'width': '210px','top': '-485px','left': '195px','position': 'relative','transform-origin': 'center'});
+    var valid            = 1;
+    const initialVelocity     = 0;
+    const initialdisplacement = 0;
+    const accArrayX      = Array.from({length: 1}).fill(0);
+    const accArrayZ      = Array.from({length: 1}).fill(0);
+    const dispArrayX     = Array.from({length: 1}).fill(0);
+    const dispArrayZ     = Array.from({length: 1}).fill(0);
+    var data             = JSON.parse(JSON.stringify(data));
+    const smallestAccX   = Math.min.apply(Math, data.map(function(data) { return data.accX; }));
+    const largestAccX    = Math.max.apply(Math, data.map(function(data) { return data.accX; }));
+    const smallestAccZ   = Math.min.apply(Math, data.map(function(data) { return data.accZ; }));
+    const largestAccZ    = Math.max.apply(Math, data.map(function(data) { return data.accZ; }));
 
-
-    //async function myLoop (data) {
-    //  function retrieveAcceleration (obj) {
-    //    return new Promise((resolve, reject) => {
-    //      setTimeout(() => resolve({
-    //        acceleration_x: obj.accX,
-    //        acceleration_z: obj.accZ,
-    //        timestamp: obj.time
-    //      }), 500)
-    //    });
-    //  }
-//
-    //  /* -------------------------------------
-    //     feed the data to the keyframe here
-    //     ------------------------------------- */
-    //  for (let ele of data) {
-    //    keyframe = await retrieveAcceleration(ele);
-//
-    //    valid++;
-    //    accX = keyframe.acceleration_x;
-    //    accZ = keyframe.acceleration_z;
-    //    time = keyframe.timestamp;
-    //    accArrayX[0] = accX;
-    //    accArrayZ[0] = accZ;
-//
-    //    // compute the displacement by double integrating the acceleration for accZ (e.i. Up and down movement)
-    //    const deltaTime = valid - 1; // convert time from second per day to second
-    //    const velocityInitialZ = ((accArrayX[0]) / 2) * deltaTime; // compute initialVelocity two step backward
-    //    const velocityCurrentZ = velocityInitialZ + ((accArrayX[0]) / 2) *deltaTime; // compute currentVelocity one step backward                
-    //    const previousDispZ = dispArrayZ[0] + (deltaTime * ((velocityCurrentZ + velocityInitialZ) / 2));
-    //    dispArrayZ[0] = previousDispZ;
-    //    const dispCurrentZ = previousDispZ + dispArrayZ[0];
-//
-    //    // compute the displacement by double integrating the acceleration for accX (e.i. Right and left movement)
-    //    const velocityInitialX = ((accArrayZ[0]) / 2) * deltaTime; // compute initialVelocity two steps backward
-    //    const velocityCurrentX = velocityInitialX + ((accArrayZ[0]) / 2) *deltaTime; // compute currentVelocity one step backward                
-    //    const previousDispX = dispArrayX[0] + (deltaTime * ((velocityCurrentX + velocityInitialX) / 2));
-    //    dispArrayX[0] = previousDispX;
-    //    const dispCurrentX = previousDispX + dispArrayX[0];
-//
-    //    const finaldispX =  (dispCurrentX / 5000) * (20 ** -2);
-    //    const finaldispZ = -(dispCurrentZ / 2000) * (20 ** -2);
-//
-    //    console.log("dispX: ", finaldispX.toFixed(7)," dispZ: ", finaldispZ.toFixed(7));
-    //  };
-    //}
     
-    
-    //console.log(getRectArea(3500));
-
-    $(document).ready(function() {
-      
-      $('.wheel1').css({'width': '210px','top': '-303px','left': '420px','position': 'relative','transform-origin': 'center'});
-      $('.wheel2').css({'width': '210px','top': '-485px','left': '195px','position': 'relative','transform-origin': 'center'});
-        $.keyframe.define([{
-            name: 'carMove',
-            '100%': {
-                'transform': 'translateX(-500vw)'
-            }
-          }, {
-            name: 'wheelRotation',
-            '100%': {
-                'transform': 'rotate(360deg)'
-            }
-            },
-            {
-              name: 'shake',
-              '0%': {
-                'transform': 'translateY(-50px)'
-              },
-              '50%': {
-                'transform': 'translateY(1px)'
-              },
-              '100%': {
-                'transform': 'translateY(-50px)'
-            }  
-        }]);
-    });
-
-    function play(animation) {
-      
-      //$('.wheel1').css({'width': '210px','top': '220px','left': '420px','position': 'fixed','transform-origin': 'center'});
-      //$('.wheel2').css({'width': '210px','top': '220px','left': '195px','position': 'fixed','transform-origin': 'center'});
-
-      function myLoop() {         
-        setTimeout(function() {   
-          // code here
-          var jsonRead = data[i].accX        
-  
-          i++;                    
-          if (i < data.length) {          
-            myLoop();   
-          }      
-          console.log(jsonRead)                
-        }, 1000)
-      }
-      myLoop()
-      
-        $('.track').resetKeyframe(function() {
-       
-
-            switch (animation) {
-                case 'normal':
-                $('.wheel').playKeyframe({
-                    name: 'wheelRotation',
-                    duration: "2000ms",
-                    timingFunction: 'linear',
-                    iterationCount: 'infinite'
-                  });
-
-                $('.track').playKeyframe({
-                    name: 'carMove',
-                    duration: "10s",
-                    timingFunction: 'linear',
-                    iterationCount: 'infinite',
-                    direction: 'normal',
-                    fillMode: 'forwards'
-                  });
-
-                  $('.car').playKeyframe({
-                    name: 'shake',
-                    duration: "1s",
-                    timingFunction: 'linear',
-                    iterationCount: 'infinite',
-                    direction: 'normal',
-                    fillMode: 'forwards'
-                  });
-                break;
-            }
-        })
+    // Normalize every incoming values with min-max
+    function normalizeMinMax(min, max) {
+      var delta = max - min;
+      return function (val) {
+          return (val - min) / delta;
+      };
     }
 
-    function pause() {
-        // freeze keyframe animation and kill callback
-        $('.track').pauseKeyframe();
-        $('.car').pauseKeyframe();
-        $('.wheel1').pauseKeyframe();
-        $('.wheel2').pauseKeyframe();
+    // Compute average of the data
+    function average( obj ) {
+      var sum = 0;
+      for( var el in obj ) {
+        if( obj.hasOwnProperty( el ) ) {
+          sum += parseFloat( obj[el] );
+        }
+      }
+      return sum;
+    }
+    //console.log(average( data.accZ/data.length ))
+
+    // Normalize every incoming using z-score
+    function normalizeZscore(mean, std) {
+      var mean = max - min;
+
+      return function (val) {
+          return (val - mean) / std;
+      };
     }
 
-    function resume() {
-        // resume keyframe animation
-        $('.track').resumeKeyframe();
-        $('.car').resumeKeyframe();
-        $('.wheel1').resumeKeyframe();
-        $('.wheel2').resumeKeyframe();
-      }
+    // Retrieve data from json file and compute displacement
+    async function myLoop (data) {
+    function retrieveAcceleration (obj) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve({
+          acceleration_x: obj.accX,
+          acceleration_z: obj.accZ,
+          timestamp: obj.time
+        }), 500)
+      });
+    }
 
-  </script>  
+      /* -------------------------------------
+        feed the data to the keyframe here
+        ------------------------------------- */
+      for (let ele of data) {
+        keyframe = await retrieveAcceleration(ele);
+        valid++;
+        accX = [keyframe.acceleration_x].map(normalizeMinMax(smallestAccX,largestAccX));
+        accZ = [keyframe.acceleration_z].map(normalizeMinMax(smallestAccX,largestAccX));
+        time = keyframe.timestamp;
+        accArrayX[0] = accX;
+        accArrayZ[0] = accZ;
 
+        // compute the displacement by double integrating the acceleration for accZ (e.i. Up and down movement)
+        const deltaTime = valid - 1;
+
+        const velocityX     = initialVelocity + (accX/2) * deltaTime;
+        const displacementX = initialdisplacement + (velocityX/2) * deltaTime;
+
+        const velocityZ     = initialVelocity + (accZ/2) * deltaTime;
+        const displacementZ = initialdisplacement + (velocityZ/2) * deltaTime;
+        console.log("DispX: ", (displacementX/100).toFixed(2), "  DispZ: ", (displacementZ/100).toFixed(2));
+
+        //// All redundant operation temporary removed
+        //const velocityInitialZ = ((accArrayX[0]) / 2) * deltaTime; // compute initialVelocity two step backward
+        //const velocityCurrentZ = velocityInitialZ + ((accArrayX[0]) / 2) *deltaTime; // compute currentVelocity one step backward     
+//
+        //const previousDispZ = dispArrayZ[0] + (deltaTime * ((velocityCurrentZ + velocityInitialZ) / 2));
+        //dispArrayZ[0] = previousDispZ;
+        //const dispCurrentZ = previousDispZ + dispArrayZ[0];
+//
+        //// compute the displacement by double integrating the acceleration for accX (e.i. Right and left movement)
+        //const velocityInitialX = ((accArrayZ[0]) / 2) * deltaTime; // compute initialVelocity two steps backward
+        //const velocityCurrentX = velocityInitialX + ((accArrayZ[0]) / 2) *deltaTime; // compute currentVelocity one step backward                
+        //const previousDispX = dispArrayX[0] + (deltaTime * ((velocityCurrentX + velocityInitialX) / 2));
+        //dispArrayX[0] = previousDispX;
+        //const dispCurrentX = previousDispX + dispArrayX[0];
+        //const finaldispX =  dispCurrentX/100;
+        //const finaldispZ =  dispCurrentZ/100;
+        ////console.log(accX, accZ)
+        ////console.log("dispX: ", finaldispX.toFixed(2)," dispZ: ", finaldispZ.toFixed(2));
+      };
+    }
+    
+    // call the function to return all the acceleration data every 500ms
+    myLoop (data)
+
+      // start the div animation using jQuery
+      var lasttime = 0,  lastduration = 0,  angle = 0;
+      $(document).on('input', '#slider', function(event) {
+        var speed = $(this).val();
+        $('#AccX').html(speed);
+        
+        var roadMotion = $("#loadingRoad");
+        var skyMotion = $("#loadingSky");
+        var carMotion = $("#loadingCar");
+        var rightWheelMotion = $("#loadingRightWheel");
+        var leftWheelMotion  = $("#loadingLeftWheel");
+
+        var duration = (speed > 0) ? 50 / speed : 0;
+        var currenttime = event.originalEvent.timeStamp / 1000;
+        var difftime = currenttime - lasttime;
+
+        roadMotion.removeClass("enable_translate").show();
+        skyMotion.removeClass("enable_translate").show();
+        carMotion.removeClass("enable_translate").show();
+        //rightWheelMotion.removeClass("enable_rotate").show();
+        //leftWheelMotion.removeClass("enable_rotate").show();
+        
+        if (!lastduration && duration){
+          roadMotion.css("transform", "");
+          skyMotion.css("transform", "");
+          carMotion.css("transform", "");
+          //rightWheelMotion.css("transform", "");
+          //leftWheelMotion.css("transform", "");
+        }
+        
+        else
+            angle += (difftime % lastduration) / lastduration;
+            
+        if (duration){
+          roadMotion.css("animation-duration", duration + "s")
+          .css("animation-delay", -duration * angle + "s")    
+          .addClass("enable_translate");
+
+          //rightWheelMotion.css("animation-duration", duration + "s")
+          //.css("animation-delay", -duration * angle + "s")    
+          //.addClass("enable_rotate");
+
+          //leftWheelMotion.css("animation-duration", duration + "s")
+          //.css("animation-delay", -duration * angle + "s")    
+          //.addClass("enable_rotate");
+          }
+
+        else
+        roadMotion.css("transform", "translateX(" + 500 * angle + "deg)");
+        skyMotion.css("transform", "translateX(" + 500 * angle + "deg)");
+        carMotion.css("transform", "translateX(" + 500 * angle + "deg)");
+
+        //rightWheelMotion.css("transform", "rotate(" + 360 * angle + "deg)");
+        //leftWheelMotion.css("transform", "rotate(" + 360 * angle + "deg)");
+        
+        angle -= angle | 0; //use fractional part only
+        lasttime = currenttime;
+        lastduration = duration;
+      });
+
+      var lasttimeCar = 0,  lastdurationCar = 0,  angleCar = 0;
+      $(document).on('input', '#slider2', function(eventCar){
+        var velocity = $(this).val();
+        $('#AccZ').html(velocity);
+
+        var carMotion = $("#loadingCar");
+
+        var durationCar    = (velocity > 0) ? 20 / velocity : 0;
+        var currenttimeCar = eventCar.originalEvent.timeStamp / 500;
+        var difftime    = currenttimeCar - lasttimeCar;
+
+        carMotion.removeClass("enable_shake").show();
+
+        if (!lastduration && durationCar){
+          carMotion.css("transform", "");
+        }
+        
+        else
+            angleCar += (difftime % lastduration) / lastduration;
+            
+        if (durationCar){
+          carMotion.css("animation-duration", durationCar + "s")
+          .css("animation-delay", -durationCar * angleCar + "s")    
+          .addClass("enable_shake");
+
+          }
+
+        else
+        carMotion.css("transform", "translateY(" + -200 * angleCar + "px)");
+        
+        angleCar -= angleCar | 0; //use fractional part only
+        lasttimeCar = lasttimeCar;
+        lastdurationCar = durationCar;
+      });
+
+  </script>
+
+  <!-- CSS -->
   <style>
-    *{
-        margin:  0;
-        padding: 0;
-    }
     body{
-      text-align: center;
-    }
-    .sky{
+        text-align: center;
+      }
+      
+      .enable_rotate {
+        animation: rotationalWheel infinite linear;
+      }
+      
+      .enable_translate{
+        animation: carMove infinite linear;
+      }
+
+      .enable_shake{
+        animation: shakeCar infinite linear;
+      }
+
+      .sky{
         height:100vh;
         width:800vw;
         background-color: rgb(250, 207, 142);
         background-repeat: repeat-x;
         position: absolute;
     }
+
     .track{
         height:80vh;
         width:10000vw;
         position:absolute;
-        top:70vh;
+        top:65vh;
         background-repeat: repeat-x;
         background-image: url(./img/track.png);
     }
+
     .car{
         height: 1px;
         width: 800px;
@@ -199,29 +251,76 @@
         background-size: cover;
         background-repeat: no-repeat;
         position: absolute;
-        left: 600px;
-        bottom:55vh;
+        left: 300px;
+        bottom:60vh;
     }
-  </style> 
 
+    
+    .wheel1 img{
+      width: 210px;
+      position: relative;
+      top:-320px;
+      left:-92px;
+      
+    }
+
+    .wheel2 img{
+        width: 225px;
+        position: relative;
+        top: -540px;
+        left: 120px;   
+    }
+
+    .track {
+      position: absolute;
+      left: 100;
+      right: 100;
+      margin: auto;
+    }
+      
+      @keyframes rotationalWheel {
+        100% {
+          transform: rotate(360deg);
+          transform-origin: 0% 0%;
+        }
+      }
+
+      @keyframes carMove {
+        100% {
+          transform: translateX(-500vw);
+        }
+      }
+
+      @keyframes shakeCar {
+        0% {
+          transform: translateY(-100px);
+        }
+        50% {
+          transform: translateY(1px);
+        }
+        100% {
+          transform: translateY(-100px);
+        } 
+      }
+    
+
+  </style> 
 </head>  
-<body>  
-  <div class="container"> 
-    <input type="button" onclick="play('normal')" value="Start Motion" />
-    <input type="button" onclick="pause()" value="Stop Motion" />
-    <input type="button" onclick="resume()" value="Resume Motion" />
-    <div class="sky">
-      <div class="track"></div>
-      <div class="car"> 
-          <img class="mining-truck" src="./img/miningtruck.png"> 
-        <div class="wheel wheel1">  
-          <img src="./img/car_wheel_left.png" alt="">  
-        </div>  
-        <div class="wheel wheel2">  
-          <img src="./img/car_wheel_right.png" alt="">  
-        </div>  
-      </div>  
-    </div>  
-  </div>
+<body>
+  <!-- HTML -->
+    <div class="container"> 
+      <p>Right/Left: <span id="AccX"></span></p>
+      <input type="range" min="0" max="100" value="0" id="slider">
+      <p>Up/Down: <span id="AccZ"></span></p>
+      <input type="range" min="0" max="100" value="0" id="slider2">
+        <div id="loadingSky" class="sky">
+          <div id="loadingRoad" class="track"></div>
+          <div id="loadingCar" class="car"> 
+              <img class="mining-truck" src="./img/miningtruck.png"> 
+              <div id="loadingLeftWheel" class="wheel wheel1"><img src="./img/car_wheel_left.png" alt=""> 
+            <div id="loadingRightWheel" class="wheel wheel2"><img src="./img/car_wheel_right.png" alt=""></div>  
+          </div>  
+        </div>
+      </div>
 </body>  
 </html> 

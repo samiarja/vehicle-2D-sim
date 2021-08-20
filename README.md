@@ -12,15 +12,10 @@ https://api.jquery.com/animate/
 
 **Important link:**
 
+https://www.khanacademy.org/math/statistics-probability/modeling-distributions-of-data/z-scores/a/z-scores-review
 
 https://stackoverflow.com/questions/47578337/css-change-animation-duration-without-jumping
 
-
-## Done:
-1. Stabilise motion on both axis, now the vehicle can accelerate and decelerate without jumping
-
-## TODO:
-
-1. Fix wheel rotation
-2. Normalize values in array before processing
-3. Replace data with the slide bar
+1. Stabilise wheels rotation
+2. Z-score Normalise
+3. replace slid bar with incoming disp values
