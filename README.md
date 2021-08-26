@@ -19,3 +19,7 @@ https://stackoverflow.com/questions/47578337/css-change-animation-duration-witho
 1. Stabilise wheels rotation
 2. Z-score Normalise
 3. replace slid bar with incoming disp values
+
+### TODO
+
+1. fix wheel motion

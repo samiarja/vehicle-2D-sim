@@ -11,18 +11,21 @@
   <script type='text/javascript'>
     //$('.wheel1').css({'width': '110px','top': '303px','left': '420px','position': 'relative','transform-origin': 'center'});
     //$('.wheel2').css({'width': '210px','top': '-485px','left': '195px','position': 'relative','transform-origin': 'center'});
-    var valid            = 1;
-    const initialVelocity     = 0;
-    const initialdisplacement = 0;
-    const accArrayX      = Array.from({length: 1}).fill(0);
-    const accArrayZ      = Array.from({length: 1}).fill(0);
-    const dispArrayX     = Array.from({length: 1}).fill(0);
-    const dispArrayZ     = Array.from({length: 1}).fill(0);
-    var data             = JSON.parse(JSON.stringify(data));
-    const smallestAccX   = Math.min.apply(Math, data.map(function(data) { return data.accX; }));
-    const largestAccX    = Math.max.apply(Math, data.map(function(data) { return data.accX; }));
-    const smallestAccZ   = Math.min.apply(Math, data.map(function(data) { return data.accZ; }));
-    const largestAccZ    = Math.max.apply(Math, data.map(function(data) { return data.accZ; }));
+    var valid                     = 1;
+    var initialVelocityX          = [0];
+    var initialVelocityZ          = [0];
+    var initialdisplacementX      = [0];
+    var initialdisplacementZ      = [0];
+    var counter                   = 1;
+    const accArrayX               = Array.from({length: 2}).fill(0);
+    const accArrayZ               = Array.from({length: 2}).fill(0);
+    const velArrayX               = Array.from({length: 2}).fill(0);
+    const velArrayZ               = Array.from({length: 2}).fill(0);
+    var   data                    = JSON.parse(JSON.stringify(data));
+    const smallestAccX            = Math.min.apply(Math, data.map(function(data) { return data.accX; }));
+    const largestAccX             = Math.max.apply(Math, data.map(function(data) { return data.accX; }));
+    const smallestAccZ            = Math.min.apply(Math, data.map(function(data) { return data.accZ; }));
+    const largestAccZ             = Math.max.apply(Math, data.map(function(data) { return data.accZ; }));
 
     
     // Normalize every incoming values with min-max
@@ -71,7 +74,8 @@
         ------------------------------------- */
       for (let ele of data) {
         keyframe = await retrieveAcceleration(ele);
-        valid++;
+
+        counter++;
         accX = [keyframe.acceleration_x].map(normalizeMinMax(smallestAccX,largestAccX));
         accZ = [keyframe.acceleration_z].map(normalizeMinMax(smallestAccX,largestAccX));
         time = keyframe.timestamp;
@@ -86,7 +90,8 @@
 
         const velocityZ     = initialVelocity + (accZ/2) * deltaTime;
         const displacementZ = initialdisplacement + (velocityZ/2) * deltaTime;
-        console.log("DispX: ", (displacementX/100).toFixed(2), "  DispZ: ", (displacementZ/100).toFixed(2));
+
+        //console.log("DispX: ", (displacementX/100).toFixed(2), "  DispZ: ", (displacementZ/100).toFixed(2));
 
         //// All redundant operation temporary removed
         //const velocityInitialZ = ((accArrayX[0]) / 2) * deltaTime; // compute initialVelocity two step backward
@@ -109,69 +114,147 @@
       };
     }
     
-    // call the function to return all the acceleration data every 500ms
-    myLoop (data)
+    //myLoop (data)
 
-      // start the div animation using jQuery
+    
+
+
+      // First sliding bar for Right/Left motion
       var lasttime = 0,  lastduration = 0,  angle = 0;
-      $(document).on('input', '#slider', function(event) {
-        var speed = $(this).val();
-        $('#AccX').html(speed);
-        
-        var roadMotion = $("#loadingRoad");
-        var skyMotion = $("#loadingSky");
-        var carMotion = $("#loadingCar");
+      //$(document).on('input', '#slider', function(event) {
+      window.onload = function() {
+        var element = document.getElementById('loadingSky');
+
+        var roadMotion       = $("#loadingRoad");
+        var skyMotion        = $("#loadingSky");
+        var carMotion        = $("#loadingCar");
         var rightWheelMotion = $("#loadingRightWheel");
         var leftWheelMotion  = $("#loadingLeftWheel");
 
-        var duration = (speed > 0) ? 50 / speed : 0;
-        var currenttime = event.originalEvent.timeStamp / 1000;
-        var difftime = currenttime - lasttime;
+        console.log(leftWheelMotion);
 
-        roadMotion.removeClass("enable_translate").show();
-        skyMotion.removeClass("enable_translate").show();
-        carMotion.removeClass("enable_translate").show();
-        //rightWheelMotion.removeClass("enable_rotate").show();
-        //leftWheelMotion.removeClass("enable_rotate").show();
-        
-        if (!lastduration && duration){
-          roadMotion.css("transform", "");
-          skyMotion.css("transform", "");
-          carMotion.css("transform", "");
-          //rightWheelMotion.css("transform", "");
-          //leftWheelMotion.css("transform", "");
-        }
-        
-        else
-            angle += (difftime % lastduration) / lastduration;
-            
-        if (duration){
-          roadMotion.css("animation-duration", duration + "s")
-          .css("animation-delay", -duration * angle + "s")    
+        var current_margin = 1; // position of the car at the beginning of the animation
+        setInterval(function(){
+          if(window.innerWidth<=current_margin+10){
+            current_margin = 1;
+          }
+          new_margin = parseInt(current_margin)+0.01; // speed
+          //console.log(new_margin)
+          current_margin = new_margin;          
+
+          counter++
+          valid++
+   
+          accX = data[counter].accX;
+          accZ = data[counter].accZ;
+  
+          // compute the displacement by double integrating the acceleration for accZ (e.i. Up and down movement)
+          const deltaTime = valid - 1;
+          deltaTimeNorm = [deltaTime].map(normalizeMinMax(1,data.length));
+  
+          initialVelocityX.push(initialVelocityX[initialVelocityX.length-1] + accX * deltaTimeNorm);
+          initialVelocityX.shift();
+          
+          initialdisplacementX.push(initialdisplacementX[initialdisplacementX.length-1] + 0.5 * accX * deltaTimeNorm**2);
+          initialdisplacementX.shift();
+  
+          initialVelocityZ.push(initialVelocityZ[initialVelocityZ.length-1] + accZ * deltaTimeNorm);
+          initialVelocityZ.shift();
+          
+          initialdisplacementZ.push(initialdisplacementZ[initialdisplacementZ.length-1] + 0.5 * accZ * deltaTimeNorm**2);
+          initialdisplacementZ.shift();
+  
+          finalDisplacementX = initialdisplacementX[initialdisplacementX.length-1]*100;
+          finalDisplacementZ = initialdisplacementZ[initialdisplacementZ.length-1]*100;
+  
+          //element.style.left = new_margin;
+          //console.log("AccX: ", finalDisplacementX, "     AccZ: ", finalDisplacementZ);
+
+          carMotion.css("animation-duration", counter + "s")
+          .css("animation-delay", -counter * finalDisplacementX + "s")    
+          .addClass("enable_shake");
+
+          roadMotion.css("animation-duration", counter + "s")
+          .css("animation-delay", -counter * finalDisplacementZ + "s")    
           .addClass("enable_translate");
 
-          //rightWheelMotion.css("animation-duration", duration + "s")
-          //.css("animation-delay", -duration * angle + "s")    
+
+          document.querySelector("#accX").textContent = accX;
+          document.querySelector("#accZ").textContent = accZ;
+          document.querySelector("#initialVelocityX").textContent = initialVelocityX[initialVelocityX.length-1].toFixed(5)
+          document.querySelector("#initialVelocityZ").textContent = initialVelocityZ[initialVelocityZ.length-1].toFixed(5)
+          document.querySelector("#finalDisplacementX").textContent = finalDisplacementX.toFixed(5)
+          document.querySelector("#finalDisplacementX").textContent = finalDisplacementX.toFixed(5)
+
+          //console.log(rightWheelMotion);
+
+          //rightWheelMotion.css("animation-duration", counter + "s")
+          //.css("animation-delay", -counter * finalDisplacementZ + "s")
           //.addClass("enable_rotate");
 
-          //leftWheelMotion.css("animation-duration", duration + "s")
-          //.css("animation-delay", -duration * angle + "s")    
-          //.addClass("enable_rotate");
-          }
+        },200);
 
-        else
-        roadMotion.css("transform", "translateX(" + 500 * angle + "deg)");
-        skyMotion.css("transform", "translateX(" + 500 * angle + "deg)");
-        carMotion.css("transform", "translateX(" + 500 * angle + "deg)");
-
-        //rightWheelMotion.css("transform", "rotate(" + 360 * angle + "deg)");
-        //leftWheelMotion.css("transform", "rotate(" + 360 * angle + "deg)");
         
-        angle -= angle | 0; //use fractional part only
-        lasttime = currenttime;
-        lastduration = duration;
-      });
+        //var speed = $(this).val();
+        //$('#AccX').html(speed);
+        //
+        //var roadMotion       = $("#loadingRoad");
+        //var skyMotion        = $("#loadingSky");
+        //var carMotion        = $("#loadingCar");
+        //var rightWheelMotion = $("#loadingRightWheel");
+        //var leftWheelMotion  = $("#loadingLeftWheel");
+//
+        //var duration         = (speed > 0) ? 100 / speed : 0;
+        //
+        //var currenttime = event.originalEvent.timeStamp / 1000;
+        //var difftime    = currenttime - lasttime;
+        ////console.log(duration)
+//
+        //roadMotion.removeClass("enable_translate").show();
+        //skyMotion.removeClass("enable_translate").show();
+        //carMotion.removeClass("enable_translate").show();
+        ////rightWheelMotion.removeClass("enable_rotate").show();
+        ////leftWheelMotion.removeClass("enable_rotate").show();
+        //
+        //if (!lastduration && duration){
+        //  roadMotion.css("transform", "");
+        //  skyMotion.css("transform", "");
+        //  carMotion.css("transform", "");
+        //  //rightWheelMotion.css("transform", "");
+        //  //leftWheelMotion.css("transform", "");
+        //}
+        //
+        //else
+        //    angle += (difftime % lastduration) / lastduration;
+        //    
+        //if (duration){
+        //  roadMotion.css("animation-duration", duration + "s")
+        //  .css("animation-delay", -duration * finalDisplacementX + "s")
+        //  .addClass("enable_translate");
+//
+        //  //rightWheelMotion.css("animation-duration", duration + "s")
+        //  //.css("animation-delay", -duration * angle + "s")    
+        //  //.addClass("enable_rotate");
+//
+        //  //leftWheelMotion.css("animation-duration", duration + "s")
+        //  //.css("animation-delay", -duration * angle + "s")    
+        //  //.addClass("enable_rotate");
+        //  }
+//
+        //else
+        //roadMotion.css("transform", "translateX(" + 500 * angle + "deg)");
+        //skyMotion.css("transform", "translateX(" + 500 * angle + "deg)");
+        //carMotion.css("transform", "translateX(" + 500 * angle + "deg)");
+//
+        ////rightWheelMotion.css("transform", "rotate(" + 360 * angle + "deg)");
+        ////leftWheelMotion.css("transform", "rotate(" + 360 * angle + "deg)");
+        //
+        //angle -= angle | 0; //use fractional part only
+        //lasttime = currenttime;
+        //lastduration = duration;
+      };
 
+      // Second sliding bar for UP/Down motion
       var lasttimeCar = 0,  lastdurationCar = 0,  angleCar = 0;
       $(document).on('input', '#slider2', function(eventCar){
         var velocity = $(this).val();
@@ -251,7 +334,7 @@
         background-size: cover;
         background-repeat: no-repeat;
         position: absolute;
-        left: 300px;
+        left: 400px;
         bottom:60vh;
     }
 
@@ -261,7 +344,6 @@
       position: relative;
       top:-320px;
       left:-92px;
-      
     }
 
     .wheel2 img{
@@ -277,11 +359,85 @@
       right: 100;
       margin: auto;
     }
-      
+
+    .header img {
+      float: left;
+      width: 350px;
+      height: 100px;
+      background: rgb(250, 207, 142);
+    }
+
+    .headerAccX {
+      float: left;
+      width: 350px;
+      height: 100px;
+      font-size:1.5em;
+      position: relative;
+      top: 100px;
+      left: -420px;
+      background: rgb(250, 207, 142);
+    }
+
+    .headerAccZ {
+      float: left;
+      width: 350px;
+      height: 100px;
+      font-size:1.5em;
+      position: relative;
+      top: 140px;
+      left: -770px;
+      background: rgb(250, 207, 142);
+    }
+     
+    
+    .headerVelX {
+      float: left;
+      width: 350px;
+      height: 100px;
+      font-size:1.5em;
+      position: relative;
+      top: 180px;
+      left: -1095px;
+      background: rgb(250, 207, 142);
+    }
+
+    .headerVelZ {
+      float: left;
+      width: 350px;
+      height: 100px;
+      font-size:1.5em;
+      position: relative;
+      top: 220px;
+      left: -1445px;
+      background: rgb(250, 207, 142);
+    }
+
+    .headerDispX {
+      float: left;
+      width: 350px;
+      height: 100px;
+      font-size:1.5em;
+      position: relative;
+      top: 260px;
+      left: -1775px;
+      background: rgb(250, 207, 142);
+    }
+
+    .headerDispZ {
+      float: left;
+      width: 350px;
+      height: 100px;
+      font-size:1.5em;
+      position: relative;
+      top: 300px;
+      left: -2160px;
+      background: rgb(250, 207, 142);
+    }
+
+
       @keyframes rotationalWheel {
         100% {
           transform: rotate(360deg);
-          transform-origin: 0% 0%;
         }
       }
 
@@ -302,18 +458,28 @@
           transform: translateY(-100px);
         } 
       }
-    
 
   </style> 
 </head>  
 <body>
   <!-- HTML -->
-    <div class="container"> 
-      <p>Right/Left: <span id="AccX"></span></p>
-      <input type="range" min="0" max="100" value="0" id="slider">
-      <p>Up/Down: <span id="AccZ"></span></p>
-      <input type="range" min="0" max="100" value="0" id="slider2">
+    <div class="container">
+      <!-- <p>Right/Left: <span id="AccX"></span></p> -->
+      <!-- <input type="range" min="0" max="100" value="0" id="slider"> -->
+      <!-- <p>Up/Down: <span id="AccZ"></span></p> -->
+      <!-- <input type="range" min="0" max="100" value="0" id="slider2"> -->
         <div id="loadingSky" class="sky">
+          <div class="header"><img src="img/logo.png" alt="logo" /></div>
+
+          <div class="headerAccX">AccX = <span id="accX">0</span> m/s^2</div>
+          <div class="headerAccZ">AccZ = <span id="accZ">0</span> m/s^2</div>
+
+          <div class="headerVelX">VelocityX = <span id="initialVelocityX">0</span> m/s</div>
+          <div class="headerVelZ">VelocityZ = <span id="initialVelocityZ">0</span> m/s</div>
+
+          <div class="headerDispX">DisplacementX = <span id="finalDisplacementX">0</span> m</div>
+          <div class="headerDispZ">DisplacementZ = <span id="finalDisplacementZ">0</span> m</div>
+
           <div id="loadingRoad" class="track"></div>
           <div id="loadingCar" class="car"> 
               <img class="mining-truck" src="./img/miningtruck.png"> 
